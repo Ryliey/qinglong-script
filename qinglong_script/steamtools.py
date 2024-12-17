@@ -1,3 +1,8 @@
+"""
+name: SteamTools签到
+cron: 0 6 * * *
+"""
+
 import os
 import re
 import requests
