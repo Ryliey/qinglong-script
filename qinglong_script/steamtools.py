@@ -24,9 +24,9 @@ class SteamToolsSignIn:
         Returns:
             Dict[str, str]: 解析后的cookies字典
         """
-        cookies_str = os.environ.get("STEAM_COOKIES")
+        cookies_str = os.environ.get("STEAMTOOLS_COOKIES")
         if not cookies_str:
-            logger.error("未设置环境变量 STEAM_COOKIES")
+            logger.error("未设置环境变量 STEAMTOOLS_COOKIES")
             exit(1)
 
         return dict(cookie.split("=") for cookie in cookies_str.split("; "))
