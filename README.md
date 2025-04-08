@@ -1,9 +1,9 @@
 ## 列表
 
-|                             脚本                             |                       介绍                       |                             文档                             |
-| :----------------------------------------------------------: | :----------------------------------------------: | :----------------------------------------------------------: |
-| [pt-checkin.py](https://github.com/Ryliey/qinglong-script/blob/main/qinglong_script/pt-checkin.py) |              PT站签到，支持多个站点              | [pt-checkin.md](https://github.com/Ryliey/qinglong-script/blob/main/docs/pt-checkin.md) |
-| [steamtools.py](https://github.com/Ryliey/qinglong-script/blob/main/qinglong_script/steamtools.py) | [SteamTools论坛](https://bbs.steamtools.net)签到 |                                                              |
+|                      脚本                      |                       介绍                       |                文档                 |
+| :--------------------------------------------: | :----------------------------------------------: | :---------------------------------: |
+| [pt-checkin.py](qinglong_script/pt-checkin.py) |              PT站签到，支持多个站点              | [pt-checkin.md](docs/pt-checkin.md) |
+| [steamtools.py](qinglong_script/steamtools.py) | [SteamTools论坛](https://bbs.steamtools.net)签到 | [steamtools.md](docs/steamtools.md) |
 
 
 
