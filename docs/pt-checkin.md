@@ -22,7 +22,7 @@
 1. **打开开发者工具**
    - 右键点击网页空白处，选择 **“检查”**，或者使用快捷键：`Ctrl+Shift+I` (Windows) 或 `Cmd+Option+I` (Mac)。
 
-![context-menu-inspect](assets/context-menu-inspect.png)
+![右键菜单的检查](assets/pt-context-menu.png)
 
 2. **切换到网络选项卡**
    - 在开发者工具中，找到并点击 **“网络”** (Network) 标签。
@@ -38,7 +38,7 @@
    - 选中 Cookie 的值，复制后粘贴到对应的环境变量中。
 
 
-![network-cookie-search](assets/network-cookie-search.png)
+![Cookies 获取](assets/pt-cookie-acquisition.png)
 
-![qingLong_environment_variables](assets/qinglong_environment_variables.png)
+![设置环境变量](assets/pt-env-variables-setup.png)
 
