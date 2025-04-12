@@ -2,13 +2,9 @@
 
 为SteamTools论坛 <https://bbs.steamtools.net> 实现定时签到
 
----
-
 ## 环境变量
 
 1. `STEAMTOOLS_COOKIES`：[SteamTools论坛](https://bbs.steamtools.net/) Cookies
-
----
 
 ## Cookie获取
 

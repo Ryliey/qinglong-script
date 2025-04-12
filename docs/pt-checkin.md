@@ -2,8 +2,6 @@
 
 为多PT站点（Private Tracker）实现定时签到
 
----
-
 ## 支持站点
 
 | 站点名称  |      站点网址       |     环境变量      |
@@ -12,16 +10,12 @@
 | **PTLGS** |  https://ptlgs.org  |  `PTLGS_COOKIES`  |
 |  **雨**   | https://raingfh.top | `RAINGFH_COOKIES` |
 
----
-
 ## 环境变量
 
 1. `ENABLED_SITES`：需要启用的站点，默认全部启用。
    - 配置示例：`HDPT,PTLGS`。
 
 2. `xxx_COOKIES`：各站点对应的 Cookie 环境变量。
-
----
 
 ## Cookie获取
 
