@@ -9,20 +9,21 @@
 
 ## 使用
 
-1. 添加依赖，`青龙面板->依赖管理->python3->创建依赖->名称` 填入。
+1. **添加依赖：**`青龙面板->依赖管理->python3->创建依赖->名称` 中填入，并开启 “**自动拆分**”。
 
-```
-requests
-```
+    ```
+    requests
+    selectolax
+    ```
 
-2. 拉取仓库，`青龙面板->订阅管理->创建订阅->名称` 中填入。
+2. **拉取仓库：**`青龙面板->订阅管理->创建订阅->名称` 中填入。
 
-```
-ql repo https://github.com/Ryliey/qinglong-script.git "" "__init__|logger" "notify|logger" "main"
-```
+    ```
+    ql repo https://github.com/Ryliey/qinglong-script.git "" "__init__|logger" "notify|logger" "main"
+    ```
 
-- 定时规则
+    - 定时规则
 
-```
-0 0 5 * *
-```
+    ```
+    0 0 5 * * ?
+    ```
