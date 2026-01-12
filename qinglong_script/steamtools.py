@@ -7,10 +7,16 @@ import os
 import re
 import httpx
 from typing import Dict, Tuple, List
+from selectolax.parser import HTMLParser
 
 from utils.result import Result
 from utils.logger import logger
-from selectolax.parser import HTMLParser
+from utils.formatter import (
+    format_header,
+    format_footer,
+    format_separator,
+    format_error,
+)
 
 
 class SteamTools:
@@ -119,14 +125,14 @@ class SteamTools:
         try:
             stats_result = self._parse_signin_stats()
             if not stats_result.is_success:
-                return self._format_error(stats_result.error)
+                return format_error(stats_result.error)
 
             user_name, signin_days, needs_signin, html = stats_result.value
 
             if needs_signin:
                 reward_result = self._submit_sign(html)
                 if not reward_result.is_success:
-                    return self._format_error(reward_result.error)
+                    return format_error(reward_result.error)
 
                 return self._format_success(
                     user_name=user_name,
@@ -138,7 +144,7 @@ class SteamTools:
                     user_name=user_name, status="今日已签到", days=int(signin_days)
                 )
         except Exception as e:
-            return self._format_error(f"未知错误: {str(e)}")
+            return format_error(f"未知错误: {str(e)}")
         finally:
             self.client.close()
 
@@ -152,10 +158,6 @@ class SteamTools:
             "连续签到": f"{days}天",
         }
         return "\n".join(f"{k}: {v}" for k, v in message.items())
-
-    @staticmethod
-    def _format_error(error: str) -> str:
-        return f"状态: {error}"
 
 
 class MultiAccountSignIn:
@@ -193,49 +195,33 @@ class MultiAccountSignIn:
         try:
             cookies_result = self._parse_cookies(cookies_str)
             if not cookies_result.is_success:
-                return self._format_error(cookies_result.error)
+                return format_error(cookies_result.error)
 
             signin = self.executor_class(cookies_result.value)
             return signin.execute()
         except Exception as e:
-            return self._format_error(f"未知错误: {str(e)}")
+            return format_error(f"未知错误: {str(e)}")
 
     def execute_all(self) -> str:
         try:
             cookies_result = self._get_cookies_list()
             if not cookies_result.is_success:
-                return self._format_error(cookies_result.error)
+                return format_error(cookies_result.error)
 
-            messages = [self._format_header()]
+            messages = [format_header()]
 
             for i, cookies_str in enumerate(cookies_result.value, 1):
                 messages.extend(
-                    [self._format_separator(i), self._process_account(cookies_str)]
+                    [format_separator(i), self._process_account(cookies_str)]
                 )
 
-            messages.append(self._format_footer())
+            messages.append(format_footer())
             return "\n".join(messages)
 
         except Exception as e:
             error_msg = f"任务执行失败: {str(e)}"
             logger.error(error_msg)
-            return self._format_error(error_msg)
-
-    @staticmethod
-    def _format_header() -> str:
-        return "***** 开始任务 *****"
-
-    @staticmethod
-    def _format_footer() -> str:
-        return "\n***** 任务结束 *****"
-
-    @staticmethod
-    def _format_separator(account_num: int) -> str:
-        return f"\n----- 账号 {account_num} -----"
-
-    @staticmethod
-    def _format_error(error: str) -> str:
-        return f"状态: {error}"
+            return format_error(error_msg)
 
 
 def main():
