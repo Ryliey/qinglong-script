@@ -39,9 +39,9 @@ class SteamTools:
 
     def _parse_signin_stats(self) -> Result[Tuple[str, str, bool, HTMLParser]]:
         try:
-            status_resp = self.client.get(self._stats_url)
-            status_resp.raise_for_status()
-            html = HTMLParser(status_resp.text)
+            resp = self.client.get(self._stats_url)
+            resp.raise_for_status()
+            html = HTMLParser(resp.text)
 
             login_link = html.css_first(
                 'a[href*="member.php?mod=logging&action=login"]'
@@ -121,7 +121,7 @@ class SteamTools:
 
         return Result.success(f"{match.group(1)} T币")
 
-    def execute(self) -> str:
+    def sign_in(self) -> str:
         try:
             stats_result = self._parse_signin_stats()
             if not stats_result.is_success:
@@ -160,7 +160,7 @@ class SteamTools:
         return "\n".join(f"{k}: {v}" for k, v in message.items())
 
 
-class MultiAccountSignIn:
+class AccountTaskRunner:
     def __init__(self, cookies_env_name: str, executor_class: type):
         self.cookies_env_name = cookies_env_name
         self.executor_class = executor_class
@@ -198,11 +198,11 @@ class MultiAccountSignIn:
                 return format_error(cookies_result.error)
 
             signin = self.executor_class(cookies_result.value)
-            return signin.execute()
+            return signin.sign_in()
         except Exception as e:
             return format_error(f"未知错误: {str(e)}")
 
-    def execute_all(self) -> str:
+    def run(self) -> str:
         try:
             cookies_result = self._get_cookies_list()
             if not cookies_result.is_success:
@@ -225,11 +225,11 @@ class MultiAccountSignIn:
 
 
 def main():
-    multi_signin = MultiAccountSignIn(
+    multi_signin = AccountTaskRunner(
         cookies_env_name="STEAMTOOLS_COOKIES",
         executor_class=SteamTools,
     )
-    message = multi_signin.execute_all()
+    message = multi_signin.run()
     print(message)
     QLAPI.notify("SteamTools签到", message)
 
