@@ -15,5 +15,8 @@ def setup_logger():
     return logging.getLogger()
 
 
-# 默认配置
 logger = setup_logger()
+
+# Disable httpx logging
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
