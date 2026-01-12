@@ -5,7 +5,7 @@ cron: 0 6 * * *
 
 import os
 import re
-import requests
+import httpx
 from typing import Dict, Tuple, List
 
 from utils.result import Result
@@ -25,14 +25,15 @@ class SteamTools:
         self._stats_url = f"{self._base_url}/plugin.php?id=dc_signin"
         self._submit_url = f"{self._base_url}/plugin.php?id=dc_signin:sign"
 
-        self.session = requests.Session()
-        self.session.headers.update(self.headers)
-        self.session.cookies.update(cookies_dict)
-        self.session.timeout = 10
+        self.client = httpx.Client(
+            headers=self.headers,
+            cookies=cookies_dict,
+            timeout=10,
+        )
 
     def _parse_signin_stats(self) -> Result[Tuple[str, str, bool, HTMLParser]]:
         try:
-            status_resp = self.session.get(self._stats_url)
+            status_resp = self.client.get(self._stats_url)
             status_resp.raise_for_status()
             html = HTMLParser(status_resp.text)
 
@@ -59,15 +60,19 @@ class SteamTools:
                 logger.debug(f"用户 {user_name} 今日已签到")
 
             return Result.success((user_name, signin_days, needs_signin, html))
-        except Exception as e:
+        except httpx.RequestError as e:
             return Result.failure(f"网络请求失败: {str(e)}")
+        except (KeyError, AttributeError) as e:
+            return Result.failure(f"页面解析失败: {str(e)}")
+        except Exception as e:
+            return Result.failure(f"未知错误: {str(e)}")
 
     def _extract_formhash(self, html: HTMLParser) -> Result[str]:
         formhash = html.css_first("#scbar_form > input:nth-child(2)")
 
         if not formhash or not (value := formhash.attributes.get("value")):
             return Result.failure("页面解析失败: 未找到formhash")
-            
+
         logger.debug(f"成功获取Formhash: {value[:4]}****")
         return Result.success(value)
 
@@ -86,11 +91,11 @@ class SteamTools:
                 "content": "没有开心，哪里来的幸福？要开心啦",
             }
 
-            resp = self.session.post(self._submit_url, data=form_data)
+            resp = self.client.post(self._submit_url, data=form_data)
             resp.raise_for_status()
 
             return self._extract_reward(resp.text)
-        except requests.HTTPStatusError as e:
+        except httpx.HTTPStatusError as e:
             return Result.failure(f"网络请求失败: HTTP {e.response.status_code}")
         except Exception as e:
             return Result.failure(f"签到请求失败: {str(e)}")
@@ -126,25 +131,25 @@ class SteamTools:
                 return self._format_success(
                     user_name=user_name,
                     reward=reward_result.value,
-                    days=int(signin_days) + 1
+                    days=int(signin_days) + 1,
                 )
             else:
                 return self._format_success(
-                    user_name=user_name,
-                    status="今日已签到",
-                    days=int(signin_days)
+                    user_name=user_name, status="今日已签到", days=int(signin_days)
                 )
         except Exception as e:
             return self._format_error(f"未知错误: {str(e)}")
         finally:
-            self.session.close()
+            self.client.close()
 
     @staticmethod
-    def _format_success(user_name: str, days: int, reward: str = None, status: str = None) -> str:
+    def _format_success(
+        user_name: str, days: int, reward: str = None, status: str = None
+    ) -> str:
         message = {
             "用户": user_name,
             "奖励" if reward else "状态": reward or status,
-            "连续签到": f"{days}天"
+            "连续签到": f"{days}天",
         }
         return "\n".join(f"{k}: {v}" for k, v in message.items())
 
@@ -177,7 +182,9 @@ class MultiAccountSignIn:
         if not cookies_str:
             return Result.failure("Cookie解析失败: 字符串为空")
         try:
-            cookies_dict = dict(cookie.split("=") for cookie in cookies_str.split("; "))
+            cookies_dict = dict(
+                cookie.split("=", 1) for cookie in cookies_str.split("; ")
+            )
             return Result.success(cookies_dict)
         except Exception as e:
             return Result.failure(f"Cookie解析失败: {str(e)}")
@@ -202,10 +209,9 @@ class MultiAccountSignIn:
             messages = [self._format_header()]
 
             for i, cookies_str in enumerate(cookies_result.value, 1):
-                messages.extend([
-                    self._format_separator(i),
-                    self._process_account(cookies_str)
-                ])
+                messages.extend(
+                    [self._format_separator(i), self._process_account(cookies_str)]
+                )
 
             messages.append(self._format_footer())
             return "\n".join(messages)
