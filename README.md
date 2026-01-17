@@ -19,7 +19,7 @@
 2. **拉取仓库：**`青龙面板->订阅管理->创建订阅->名称` 中填入。
 
     ```
-    ql repo https://github.com/Ryliey/qinglong-script.git "" "__init__|logger|result" "notify|logger|result" "main"
+    ql repo https://github.com/Ryliey/qinglong-script.git "" "__init__|logger|result|formatter" "notify|logger|result" "main"
     ```
 
     - 定时规则
