@@ -3,11 +3,10 @@ name: hifiti 签到
 cron: 0 6 * * *
 """
 
-from ast import List
 import os
 import re
 import httpx
-from typing import Dict
+from typing import Dict, List
 from selectolax.parser import HTMLParser
 
 from utils.result import Result
