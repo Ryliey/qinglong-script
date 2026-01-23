@@ -4,7 +4,6 @@ cron: 0 6 * * *
 """
 
 import os
-import re
 import httpx
 from typing import Dict, Tuple, List
 from selectolax.parser import HTMLParser
@@ -21,9 +20,9 @@ from utils.formatter import (
 
 class SteamTools:
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0",
-        "Accept-Language": "zh-CN,zh;q=0.8",
-        "Referer": "https://bbs.steamtools.net/plugin.php?id=dc_signin&action=index",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:146.0) Gecko/20100101 Firefox/146.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
     }
 
     def __init__(self, cookies_dict: Dict[str, str]):
@@ -39,7 +38,12 @@ class SteamTools:
 
     def _parse_signin_stats(self) -> Result[Tuple[str, str, bool, HTMLParser]]:
         try:
-            resp = self.client.get(self._stats_url)
+            resp = self.client.get(
+                self._stats_url,
+                params={
+                    "id": "dc_signin",
+                },
+            )
             resp.raise_for_status()
             html = HTMLParser(resp.text)
 
@@ -100,26 +104,11 @@ class SteamTools:
             resp = self.client.post(self._submit_url, data=form_data)
             resp.raise_for_status()
 
-            return self._extract_reward(resp.text)
+            return Result.success(None)
         except httpx.HTTPStatusError as e:
             return Result.failure(f"网络请求失败: HTTP {e.response.status_code}")
         except Exception as e:
             return Result.failure(f"签到请求失败: {str(e)}")
-
-    def _extract_reward(self, resp_html: str) -> Result[str]:
-        html = HTMLParser(resp_html)
-        reward_message = html.css_first("#messagetext > p:nth-child(1)")
-
-        if not reward_message:
-            return Result.failure("页面解析失败: 未找到奖励信息")
-
-        message_text = reward_message.text().strip()
-        match = re.search(r"随机奖励T币\s*(\d+)", message_text)
-
-        if not match:
-            return Result.failure("页面解析失败: 未找到T币数量")
-
-        return Result.success(f"{match.group(1)} T币")
 
     def sign_in(self) -> str:
         try:
@@ -130,13 +119,13 @@ class SteamTools:
             user_name, signin_days, needs_signin, html = stats_result.value
 
             if needs_signin:
-                reward_result = self._submit_sign(html)
-                if not reward_result.is_success:
-                    return format_error(reward_result.error)
+                sign_result = self._submit_sign(html)
+                if not sign_result.is_success:
+                    return format_error(sign_result.error)
 
                 return self._format_success(
                     user_name=user_name,
-                    reward=reward_result.value,
+                    status="签到成功",
                     days=int(signin_days) + 1,
                 )
             else:
@@ -149,12 +138,10 @@ class SteamTools:
             self.client.close()
 
     @staticmethod
-    def _format_success(
-        user_name: str, days: int, reward: str = None, status: str = None
-    ) -> str:
+    def _format_success(user_name: str, days: int, status: str) -> str:
         message = {
             "用户": user_name,
-            "奖励" if reward else "状态": reward or status,
+            "状态": status,
             "连续签到": f"{days}天",
         }
         return "\n".join(f"{k}: {v}" for k, v in message.items())
