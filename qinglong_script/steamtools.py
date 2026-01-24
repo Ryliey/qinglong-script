@@ -4,8 +4,10 @@ cron: 0 6 * * *
 """
 
 import os
-import httpx
 from typing import Dict, Tuple, List
+
+from curl_cffi import requests as curl_requests
+from curl_cffi.requests.errors import RequestsError
 from selectolax.parser import HTMLParser
 
 from utils.result import Result
@@ -19,21 +21,15 @@ from utils.formatter import (
 
 
 class SteamTools:
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:146.0) Gecko/20100101 Firefox/146.0",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-    }
-
     def __init__(self, cookies_dict: Dict[str, str]):
         self._base_url = "https://bbs.steamtools.net"
         self._stats_url = f"{self._base_url}/plugin.php?id=dc_signin"
         self._submit_url = f"{self._base_url}/plugin.php?id=dc_signin:sign"
 
-        self.client = httpx.Client(
-            headers=self.headers,
+        self.client = curl_requests.Session(
             cookies=cookies_dict,
             timeout=10,
+            impersonate="chrome131",
         )
 
     def _parse_signin_stats(self) -> Result[Tuple[str, str, bool, HTMLParser]]:
@@ -70,7 +66,7 @@ class SteamTools:
                 logger.debug(f"用户 {user_name} 今日已签到")
 
             return Result.success((user_name, signin_days, needs_signin, html))
-        except httpx.RequestError as e:
+        except RequestsError as e:
             return Result.failure(f"网络请求失败: {str(e)}")
         except (KeyError, AttributeError) as e:
             return Result.failure(f"页面解析失败: {str(e)}")
@@ -105,8 +101,8 @@ class SteamTools:
             resp.raise_for_status()
 
             return Result.success(None)
-        except httpx.HTTPStatusError as e:
-            return Result.failure(f"网络请求失败: HTTP {e.response.status_code}")
+        except RequestsError as e:
+            return Result.failure(f"网络请求失败: {str(e)}")
         except Exception as e:
             return Result.failure(f"签到请求失败: {str(e)}")
 
