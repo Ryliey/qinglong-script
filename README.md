@@ -2,9 +2,8 @@
 
 |                      脚本                      |                       介绍                       |                文档                 |
 | :--------------------------------------------: | :----------------------------------------------: | :---------------------------------: |
-| [pt-checkin.py](qinglong_script/pt-checkin.py) |              PT站签到，支持多个站点              | [pt-checkin.md](docs/pt-checkin.md) |
 | [steamtools.py](qinglong_script/steamtools.py) | [SteamTools论坛](https://bbs.steamtools.net)签到 | [steamtools.md](docs/steamtools.md) |
-
+| [hifiti.py](qinglong_script/hifiti.py) | [HiFiNi](https://hifiti.com)签到 | [hifiti.md](docs/hifiti.md) |
 
 
 ## 使用
