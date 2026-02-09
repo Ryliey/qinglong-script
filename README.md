@@ -12,7 +12,8 @@
 1. **添加依赖：**`青龙面板->依赖管理->python3->创建依赖->名称` 中填入，并开启 “**自动拆分**”。
 
     ```
-    requests
+    httpx
+    curl-cffi
     selectolax
     ```
 
