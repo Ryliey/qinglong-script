@@ -2,8 +2,8 @@
 
 |                      脚本                      |                       介绍                       |                文档                 |
 | :--------------------------------------------: | :----------------------------------------------: | :---------------------------------: |
-| [steamtools.py](qinglong_script/steamtools.py) | [SteamTools论坛](https://bbs.steamtools.net)签到 | [steamtools.md](docs/steamtools.md) |
-| [hifiti.py](qinglong_script/hifiti.py) | [HiFiNi](https://hifiti.com)签到 | [hifiti.md](docs/hifiti.md) |
+| [steamtools.py](qinglong_script/steamtools.py) | [SteamTools 论坛](https://bbs.steamtools.net) 签到 | [steamtools.md](docs/steamtools.md) |
+| [hifiti.py](qinglong_script/hifiti.py) | [HiFiNi](https://hifiti.com) 签到 | [hifiti.md](docs/hifiti.md) |
 
 
 ## 使用
